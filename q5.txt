@@ -5,7 +5,7 @@ PREFIX dbo: <http://dbpedia.org/ontology/>
 PREFIX dbr: <http://dbpedia.org/resource/>
 
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-SELECT ?city (xsd:integer(?population)/xsd:integer(?cnt) AS ?result)
+SELECT ?city (xsd:integer(?population)/xsd:integer(?cnt) AS ?ratio)
 WHERE
 {
 SELECT ?city (COUNT(?hospital) as ?cnt) ?population (xsd:float(?population)/xsd:float(?cnt) AS ?result) WHERE {
