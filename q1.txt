@@ -3,7 +3,9 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX dbc: <http://dbpedia.org/resource/Category:>
 PREFIX dbo: <http://dbpedia.org/ontology/>
-SELECT ?stadium ?tenant WHERE {
+SELECT ?stadium ?tenant ?capacity WHERE {
   ?stadium dct:subject dbc:Football_venues_in_Italy .
-  ?stadium dbo:tenant ?tenant
+  ?stadium dbo:tenant ?tenant .
+  OPTIONAL
+  {?tenant dbo:capacity ?capacity .}
 }
