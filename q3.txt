@@ -1,0 +1,25 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX dbc: <http://dbpedia.org/resource/Category:>
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX dbp: <http://dbpedia.org/property/>
+
+SELECT ?country (COUNT(?player) as ?numPlayers)  WHERE {
+  ?player rdf:type dbo:SoccerPlayer .
+  ?player dct:subject dbc:La_Liga_players, dbc:Expatriate_footballers_in_Spain .
+  ?player dbp:clubs ?club .
+  ?player dbo:birthPlace ?birthPlace .
+  
+  ?club rdf:type dbo:SoccerClub .
+  ?club dct:subject dbc:La_Liga_clubs, dbc:Unrelegated_association_football_clubs .
+  
+  ?birthPlace rdf:type dbo:City .
+  ?birthPlace dbo:country ?country .
+  
+  ?country rdf:type dbo:Country .
+  ?country dct:subject dbc:Countries_in_South_America .
+           
+}
+GROUP BY ?country
+ORDER BY DESC(?numPlayers)
