@@ -1,9 +1,27 @@
+========================================================================
+Please dont copy this part in, it's explanation.
+
+This gets the airports and checks if it has a location first
+then a city it serves, then a city. This order was intentional
+it gets the most airports with the right city. Even still 
+for some reason some of the cities like "Yellowknife" does not
+have the schema:City in one if its rdf:type. So I don't know
+how to get those.
+========================================================================
+
 PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX dbc: <http://dbpedia.org/resource/Category:>
 PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX schema: <http://schema.org/>
+PREFIX dbp: <http://dbpedia.org/property/>
 
 SELECT ?airport ?city
 WHERE {
-  ?airport dct:subject dbc:Canadian_airports_with_United_States_border_preclearance .
-  ?airport dbo:city ?city .
+  ?airport rdf:type schema:Airport .
+  ?airport dct:subject dbc:National_Airports_System  .
+  OPTIONAL {?airport dbo:location ?city}
+  OPTIONAL {?airport dbp:cityServed ?city}
+  OPTIONAL {?airport dbo:city ?city}
+  ?city rdf:type schema:City
 }

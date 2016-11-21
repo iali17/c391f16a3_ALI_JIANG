@@ -10,8 +10,10 @@ WHERE
 SELECT ?city (COUNT(?hospital) as ?cnt) ?population (xsd:float(?population)/xsd:float(?cnt) AS ?result) WHERE {
   ?city rdf:type schema:City .
   ?city dbo:isPartOf dbr:Alberta .
+
   ?hospital dbo:region ?city .
   ?hospital rdf:type schema:Hospital .
+  
   ?city dbo:populationTotal  ?population
 }
 }
