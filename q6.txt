@@ -21,7 +21,7 @@ we have to check if it as int or float. If it is one of those we change literal 
 int or float respectively. When this process is complete we add all these together 
 into a string which can be added to the database(comma seperated). We then append 
 this string onto a list which contains all the data to be added to the database.
+We then loop over this list, open the database file, and load them into the database.
 
-We then loop over this list, open the database file, and load them into the 
-database.
-
+When we are assigning or changing anything we check if it contains a prefix
+by checking for ":", if it does we change that variable to prefix + variable.
