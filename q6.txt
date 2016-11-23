@@ -1,1 +1,27 @@
---q6
+We will create one table which has 4 things in it:
+	1. Subject
+	2. Predicate
+	3. Object
+	4. Literal
+
+To create this table we can use:
+	CREATE TABLE data (
+	subject text, predicate text, object text, literal text);
+
+We get all the text until we find a " ."(a period not surrounded by anything). 
+This will contain a whole "line". We then seperate the each line by "," or ";".
+We parse the first part of this line, get the subject, predicate and
+the first object by seperating by white space. Then if it is a "," 
+we keep the subject and predicate and assign the object into a new row. If it 
+is a ";" we change the predicate and assign the object into a new row. When
+assigning a new object we have to check if they define a literal. When we start
+literal is defined as "text" (default). If they define a literal we change that
+literal to whatever they specify. If our object does not have a prefix and no literal
+we have to check if it as int or float. If it is one of those we change literal to 
+int or float respectively. When this process is complete we add all these together 
+into a string which can be added to the database(comma seperated). We then append 
+this string onto a list which contains all the data to be added to the database.
+
+We then loop over this list, open the database file, and load them into the 
+database.
+
