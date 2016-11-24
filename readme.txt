@@ -7,5 +7,5 @@ Question 2:
 	how to get those.
 
 Question 6:
-	Please use tab-size 8 to be able to see the graph as intended.
+	Please use tab-size 8 to be able to see the table as intended.
 
