@@ -43,10 +43,9 @@ def inObjectSpaceProcess(line):
     
     return line
 
-def recoverInObjectSpace(lineToken):
+def recoverInObjectSpace(string):
     # replace back whitespace
-    # TODO
-    return lineToken
+    return string.replace("@SPACE"," ")
         
 
 def readRDFFile(rdffile):
@@ -60,6 +59,7 @@ def readRDFFile(rdffile):
         print(lineToken)
     print(prefix)
     print(processTag('dbr:Don_Iveson'))
+    print(len(prefix))
 
 
 
