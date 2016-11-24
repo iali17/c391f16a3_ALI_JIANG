@@ -8,20 +8,93 @@ To create this table we can use:
 	CREATE TABLE data (
 	subject text, predicate text, object text, literal text);
 
-We get all the text until we find a " ."(a period not surrounded by anything). 
-This will contain a whole "line". We then seperate the each line by "," or ";".
-We parse the first part of this line, get the subject, predicate and
-the first object by seperating by white space. Then if it is a "," 
-we keep the subject and predicate and assign the object into a new row. If it 
-is a ";" we change the predicate and assign the object into a new row. When
-assigning a new object we have to check if they define a literal. When we start
-literal is defined as "text" (default). If they define a literal we change that
-literal to whatever they specify. If our object does not have a prefix and no literal
-we have to check if it as int or float. If it is one of those we change literal to 
-int or float respectively. When this process is complete we add all these together 
-into a string which can be added to the database(comma seperated). We then append 
-this string onto a list which contains all the data to be added to the database.
-We then loop over this list, open the database file, and load them into the database.
 
-When we are assigning or changing anything we check if it contains a prefix
-by checking for ":", if it does we change that variable to prefix + variable.
+We start to parse the file by first separating the data into a list. We separate by “ .“ (a period that does 
+not have anything before it. Then start looping through this list which contains a “line”.  We first check if 
+they are prefixes by checking if they start with “@PREFIX”, if they are prefixes we add them to a 
+dictionary where the name(ex. Rdf) is the key and the data is the link contained inside the “<>”. If not a 
+prefix then, parse this line into smaller bits by splitting the list again but this time on “,” and again on “;”. (ex. [“dbr:Edmonton /t rdf:type /t yago:WikicatTownsInAlberta”, “yago:Town108665504”]). Each of
+these lists get split on whitespace (/t, “ “, etc.) into a sub list (ex. [[“dbr:Edmonton”, “rdf:type”,
+“yago:WikicatTownsInAlberta”], [“yago:Town108665504”]]). We then go through each sub-list. If the
+sub-list has a length of 3 (should happen only once per line) we assign the subject, predicate and the
+first. If it has a length of 1(commas) then we keep the subject and predicate and change the object. If it
+has a length of 2 (semicolons) then we keep only the subject and reassign the predicate and change the
+object.
+
+When assigning a new object we have to check if they define a literal. If they define a literal we change 
+that literal to whatever they specify (ex. “http://www.w3.org/2001/XMLSchema#date”). Anything 
+contained inside “<>” are treated as literal “url”. If our literal is @en we assign it as text. If it is
+@(anything else) we skip that object. If our object does not have a prefix and no literal we have to
+check if it as int or float. If it is one of those we change literal to int or float respectively. When we are
+assigning or changing anything we check if it contains a prefix by checking for ":", if it does we change
+that variable to prefix data + variable.  After these checks we add all these variables together into a
+string which can be added to the database(comma seperated) to be pushed onto the database (once
+per sub-list). Once we are done parsing the whole file we loop over the list that contains things to be
+pushed, open the database file, and load them into the database.
+
+Example:
+@prefix dbp:    <http://dbpedia.org/property/> .			
+@prefix dbr:    <http://dbpedia.org/resource/> .			
+dbr:Edmonton    dbp:areaCode    780587 .			
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .			
+dbr:Edmonton    dbp:areaMetroKm 9426.7299999999995634 ;			
+        dbp:areaTotalKm 684.37000000000000455 ;			
+        dbp:elevationM  645 ;			
+        dbp:establishedDate     "1904-10-08"^^xsd:date ,			
+                "1892-01-09"^^xsd:date ;			
+        dbp:leaderName  dbr:Edmonton_City_Council ,			
+                dbr:Don_Iveson ;			
+        dbp:leaderTitle "Manager"@en ,			
+                "Governing body"@en ,			
+                dbr:Legislative_Assembly_of_Alberta ,			
+                dbr:List_of_House_members_of_the_42nd_Parliament_of_Canada ,			
+                "Mayor"@en ;			
+        dbp:motto       "Industry, Integrity, Progress"@en ;			
+        dbp:nickname    "Canada's Festival City, City of Champions, The Oil Capital of Canada (more...)"@en ;			
+        dbp:officialName        "City of Edmonton"@en ;			
+        dbp:populationDensityKm 1186.7999999999999545 ;			
+        dbp:populationDensityMetroKm    123 ;			
+        dbp:populationMetro     1159869 ;			
+
+In database:
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Subject								|	Predicate											 |	Object																			  |	Literal 						     |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/areaCode				 |	780587																			  |	int 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/areaMetroKm				 |	9426.8																			  |	float 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/areaTotalKm				 |	684.37																			  |	float 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/elevationM				 |	645																				  |	int 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/establishedDate			 |	"1904-10-08"																	  |	http://www.w3.org/2001/XMLSchema#date|
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/establishedDate			 |	"1892-01-09"																	  |	http://www.w3.org/2001/XMLSchema#date|
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/leaderName				 |	http://dbpedia.org/resource/Edmonton_City_Council								  |	url 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/leaderName				 |	http://dbpedia.org/resource/Don_Iverson											  |	url 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/leaderTitle				 |	Manager																			  |	text 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/leaderTitle				 |	Governing Body																	  |	text 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/leaderTitle				 |	http://dbpedia.org/resource/Legislative_Assembly_of_Alberta						  |	url 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/leaderTitle				 | 	http://dbpedia.org/resource/List_of_House_members_of_the_42nd_Parliament_of_Canada|	url 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/leaderTitle				 |	Mayor																			  |	text								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/motto					 |	Industry, Integrity, Progress													  |	text 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	| 	http://dbpedia.org/property/nickname				 |	Canada's Festival City, City of Champions, The Oil Capital of Canada (more...)	  |	text 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/officialName			 | 	City of Edmonton																  |	text 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/populationDensityKm		 |	1186.8																			  |	float 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/populationDensityMetroKm |	123																				  |	int 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| http://dbpedia.org/resource/Edmonton 	|	http://dbpedia.org/property/populationMetro			 |	1159869																			  |	int 								 |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
