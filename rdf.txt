@@ -1,0 +1,22 @@
+@prefix dbp:    <http://dbpedia.org/property/> .			
+@prefix dbr:    <http://dbpedia.org/resource/> .			
+dbr:Edmonton    dbp:areaCode    780587 .			
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .			
+dbr:Edmonton    dbp:areaMetroKm 9426.7299999999995634 ;			
+        dbp:areaTotalKm 684.37000000000000455 ;			
+        dbp:elevationM  645 ;			
+        dbp:establishedDate     "1904-10-08"^^xsd:date ,			
+                "1892-01-09"^^xsd:date ;			
+        dbp:leaderName  dbr:Edmonton_City_Council ,			
+                dbr:Don_Iveson ;			
+        dbp:leaderTitle "Manager"@en ,			
+                "Governing body"@en ,			
+                dbr:Legislative_Assembly_of_Alberta ,			
+                dbr:List_of_House_members_of_the_42nd_Parliament_of_Canada ,			
+                "Mayor"@en ;			
+        dbp:motto       "Industry, Integrity, Progress"@en ;			
+        dbp:nickname    "Canada's Festival City, City of Champions, The Oil Capital of Canada (more...)"@en ;			
+        dbp:officialName        "City of Edmonton"@en ;			
+        dbp:populationDensityKm 1186.7999999999999545 ;			
+        dbp:populationDensityMetroKm    123 ;		
+        dbp:populationMetro     1159869 ;			
