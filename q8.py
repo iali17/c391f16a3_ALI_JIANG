@@ -17,9 +17,9 @@ def main():
   dbfile = sys.argv[1]
   rdffile = sys.argv[2]
   readRDFFile(rdffile)
-  # for x in data:
-  # 	print(x)
-  pushDB(dbfile)
+  for x in data:
+  	print(x)
+  #pushDB(dbfile)
 
 def pushDB(dbfile):
 	conn = sqlite3.connect(dbfile)
@@ -41,6 +41,9 @@ def readRDFFile(rdffile):
 	for line in lines:
 		line = line.strip()
 		lineToken = line.split()
+		if len(lineToken) == 0:
+			lineNumber += 1
+			continue
 		if lineNumber == 1:
 			previousEnding = "."
 
@@ -48,9 +51,8 @@ def readRDFFile(rdffile):
 			print "Syntax error, you did not end line", lineNumber, "correctly."
 			sys.exit()
 
-		subject,predicate = parseLine(lineToken, lineNumber, previousEnding, subject, predicate)
+		subject,predicate,previousEnding = parseLine(lineToken, lineNumber, previousEnding, subject, predicate)
 
-		previousEnding = lineToken[-1]
 		if (previousEnding == "."):
 			subject = ""
 			predicate = ""
@@ -80,20 +82,24 @@ def parseLine(lineToken, lineNumber, previousEnding, subject, predicate):
 		startIndex = -1
 		endIndex = -1
 		for part in lineToken:
-			if "#" in part:
+			if ("#" in part) and ('<' not in part) and ('>' not in part):
 				index = part.find('#') #find point where we comment
 				part = part[:index] # everthing past this point is a comment
 				lineToken = lineToken[:lineIndex] # everything else in this line is also a comment
 
-			if ('"' in part) and ('@' not in part):
+			if ('"' in part) and (combine == False):
 				startIndex = lineIndex
-
-			if ('@' in part and ('"' in part )) :
+				combine = True
+			elif (combine == True) and ('"' in part ) :
 				endIndex = lineIndex
-				if ('@en' in part):
+				combine = False
+			
+			if ('@' in part):
+				print(lineToken)
+				if('@en' in part):
 					lineToken[lineIndex] = part.replace("@en", "")
 				else:
-					return
+					return subject, predicate, "."
 
 			if (':' in part) and ("^^" not in part):
 				processTag(part) # gets rid of the prefixes and replaces them with the value
@@ -129,12 +135,12 @@ def parseLine(lineToken, lineNumber, previousEnding, subject, predicate):
 			object,literal = processObject(lineToken[0])
 			data.append((subject,predicate,object,literal))
 		else:
-			# print len(lineToken), previousEnding
-			# print lineToken
+			print len(lineToken), previousEnding
+			print lineToken
 			print "Error, line", lineNumber
 			sys.exit()
 
-	return subject,predicate
+	return subject,predicate, lineToken[-1]
 
 
 
