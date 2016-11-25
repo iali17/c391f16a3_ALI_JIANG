@@ -18,5 +18,5 @@ dbr:Edmonton    dbp:areaMetroKm 9426.7299999999995634 ;
         dbp:nickname    "Canada's Festival City, City of Champions, The Oil Capital of Canada (more...)"@en ;			
         dbp:officialName        "City of Edmonton"@en ;			
         dbp:populationDensityKm 1186.7999999999999545 ;			
-        dbp:populationDensityMetroKm    123 ;		
+        dbp:populationDensityMetroKm    123 ; 		
         dbp:populationMetro     1159869 ;			
