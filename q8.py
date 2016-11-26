@@ -132,11 +132,11 @@ def parseLine(lineToken, lineNumber, previousEnding, subject, predicate):
 				endIndex = lineIndex
 				combine = False
 			
-			# if ('@' in part):
-			# 	if('@en' in part):
-			# 		lineToken[lineIndex] = part.replace("@en", "")
-			# 	else:
-			# 		return subject, predicate, lineToken[-1]
+			if ('@' in part):
+				if('@en' in part):
+					lineToken[lineIndex] = part.replace("@en", "")
+				else:
+					return subject, predicate, lineToken[-1]
 
 			if (':' in part) and ("^^" not in part) and ("http" not in part):
 				lineToken[lineIndex] = processTag(part) # gets rid of the prefixes and replaces them with the value
@@ -154,6 +154,7 @@ def parseLine(lineToken, lineNumber, previousEnding, subject, predicate):
 			#print lineToken
 			subject = lineToken[0]
 			predicate = lineToken[1]
+			print "here"
 			object,literal = processObject(lineToken[2])
 			if object:
 				data.append((subject,predicate,object,literal))
@@ -181,7 +182,7 @@ def parseLine(lineToken, lineNumber, previousEnding, subject, predicate):
 			print "Either too many arguments or too little arguments given in this line."
 			print "Please check if you have ended all your lines correctly."
 			sys.exit()
-
+	print lineToken
 	return subject,predicate, lineToken[-1]
 
 
@@ -194,6 +195,8 @@ def processURLTag(url):
 def processTag(tag):
 	tag = tag.split(":")
 	tag[0] += ":"
+	if tag[0] == "_:":
+		return "Blank node"
 	if tag[0] not in prefix:
 		print "Error, you tried to use prefix", tag[0], "when you have not defined it."
 		sys.exit()
@@ -202,6 +205,13 @@ def processTag(tag):
 
 def processObject(objectToken):
 	objectType = "text" # default value is text
+
+	if ('@' in objectToken):
+		if('@en' in objectToken):
+			objectToken = objectToken.replace("@en", "")
+		else:
+			return None, None
+
 	object = objectToken
 
 	try:
@@ -213,12 +223,6 @@ def processObject(objectToken):
 			if(isinstance(float(objectToken), float)):
 				objectToken = "float"
 		except ValueError:
-			if ('@' in objectToken):
-				if('@en' in objectToken):
-					objectToken = objectToken.replace("@en", "")
-			else:
-				return None, None
-
 			if ("http://" in objectToken) and ("^^" not in objectToken):
 				objectType = "url"
 			elif "^^" in objectToken:
