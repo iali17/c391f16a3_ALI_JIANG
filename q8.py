@@ -51,7 +51,7 @@ def readRDFFile(rdffile):
 				left = line[:index]
 				right = line[index:]
 
-				if ('>' not in right) and (index != -1):
+				if (('<' not in left) or ('>' not in right)) and (index != -1):
 					line = line[:index]
 
 
