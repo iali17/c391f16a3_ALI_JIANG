@@ -55,8 +55,9 @@ def readRDFFile(rdffile):
 					line = line[:index]
 
 
-		#print(line)
+		#print("before",line)
 		lineToken = line.split()
+		#print("after", lineToken)
 		if len(lineToken) == 0:
 			lineNumber += 1
 			continue
@@ -116,15 +117,25 @@ def parseLine(lineToken, lineNumber, previousEnding, subject, predicate):
 				else:
 					lineToken[lineIndex] = processURLTag(part)
 
-			if (('"' in part) or "'''" in part) and (combine == False):
+			if (('"' in part) or ("'''" in part) or ("'" in part)) and (combine == False):
 				index = part.find('"')
 				index2 = part.find("'''")
-				if (index > index2):
-					if index != -1:
-						combinePart = '"'
+				index3 = part.find("'")
+
+				if (index == -1) :
+					index = 1000000000
+				if (index2 == -1):
+					index2 = 1000000000
+				if (index3 == -1):
+					index3 = 1000000000
+
+
+				if (index < index2) and (index < index3):
+					combinePart = '"'
+				elif (index2 < index) and (index2 < index3):
+					combinePart = "'''"
 				else:
-					if index2 != -1:
-						combinePart = "'''"
+					combinePart = "'"
 
 				startIndex = lineIndex
 				combine = True
@@ -175,8 +186,8 @@ def parseLine(lineToken, lineNumber, previousEnding, subject, predicate):
 			if object:
 				data.append((subject,predicate,object,literal))
 		else:
-			# print(len(lineToken), previousEnding)
-			# print(lineToken)
+			print(len(lineToken), previousEnding)
+			print(lineToken)
 			print("Error, line", lineNumber)
 			print("Either too many arguments or too little arguments given in this line.")
 			print("Please check if you have ended all your lines correctly.")
