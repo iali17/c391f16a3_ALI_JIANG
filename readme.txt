@@ -11,3 +11,6 @@ Question 2:
 Question 6:
 	Please use tab-size 8 to be able to see the table as intended.
 
+Question 8:
+	Assume all the line ending parameters like "." , ";" and "," are
+	all alone (eg. "blah ." instead of "blah.")

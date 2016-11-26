@@ -19,6 +19,9 @@ def main():
   readRDFFile(rdffile)
   for x in data:
   	print(x)
+
+  for p in prefix:
+  	print p, prefix[p]
   #pushDB(dbfile)
 
 def pushDB(dbfile):
@@ -32,6 +35,7 @@ def readRDFFile(rdffile):
 	subject = ""
 	predicate = ""
 	previousEnding = ""
+	fullLine = []
 
 	infile = open(rdffile)
 	lines = infile.readlines()
@@ -40,6 +44,18 @@ def readRDFFile(rdffile):
 	lineNumber = 1
 	for line in lines:
 		line = line.strip()
+		if ("#" in line):
+			index = 0
+			while index != -1:
+				index = line.find('#',index+1) #find point where we comment
+				left = line[:index]
+				right = line[index:]
+
+				if ('>' not in right) and (index != -1):
+					line = line[:index]
+
+
+		#print line
 		lineToken = line.split()
 		if len(lineToken) == 0:
 			lineNumber += 1
@@ -47,11 +63,20 @@ def readRDFFile(rdffile):
 		if lineNumber == 1:
 			previousEnding = "."
 
-		if previousEnding not in allowedEnds:
-			print "Syntax error, you did not end line", lineNumber, "correctly."
-			sys.exit()
+		if lineToken[-1] not in allowedEnds:
+			fullLine += lineToken
+			lineNumber += 1
+			continue
+		else:
+			fullLine += lineToken
 
-		subject,predicate,previousEnding = parseLine(lineToken, lineNumber, previousEnding, subject, predicate)
+		# if len(fullLine) > 4:
+		# 	print "Syntax error, you did not end line", lineNumber, "correctly."
+		# 	sys.exit()
+
+		subject,predicate,previousEnding = parseLine(fullLine, lineNumber, previousEnding, subject, predicate)
+
+		fullLine = []
 
 		if (previousEnding == "."):
 			subject = ""
@@ -67,46 +92,58 @@ def readRDFFile(rdffile):
 def parseLine(lineToken, lineNumber, previousEnding, subject, predicate):
 	object = ""
 	literal = ""
+	combinePart = ""
 	# acquire prefix in RDF file, save into prefix dictionary
 	# eg: @prefix dbr:    <http://dbpedia.org/resource/> .	
 	# key: dbr
 	# value: http://dbpedia.org/resource/
-	if lineToken[0] == "@prefix":
-		type = lineToken[1].replace(":","")
+	if (lineToken[0] == "@prefix") or (lineToken[0] == "PREFIX"):
+		#type = lineToken[1].replace(":","")
 		url = processURLTag(lineToken[2])
-		prefix[type] = url
+		prefix[lineToken[1]] = url
 	# you are something we want to add to the database
 	else:
 		lineIndex = 0
 		combine = False
 		startIndex = -1
 		endIndex = -1
-		for part in lineToken:
-			if ("#" in part) and ('<' not in part) and ('>' not in part):
-				index = part.find('#') #find point where we comment
-				part = part[:index] # everthing past this point is a comment
-				lineToken = lineToken[:lineIndex] # everything else in this line is also a comment
 
-			if ('"' in part) and (combine == False):
+		for part in lineToken:
+			if ('<' in part) and ('>' in part):
+				if ("^^" in part) :
+					index = part.find('<')
+					lineToken[lineIndex] = part[:index] + processURLTag(part)
+				else:
+					lineToken[lineIndex] = processURLTag(part)
+
+			if (('"' in part) or "'''" in part) and (combine == False):
+				index = part.find('"')
+				index2 = part.find("'''")
+				if (index > index2):
+					if index != -1:
+						combinePart = '"'
+				else:
+					if index2 != -1:
+						combinePart = "'''"
+
 				startIndex = lineIndex
 				combine = True
-			elif (combine == True) and ('"' in part ) :
+			elif (combine == True) and (combinePart in part):
 				endIndex = lineIndex
 				combine = False
 			
-			if ('@' in part):
-				print(lineToken)
-				if('@en' in part):
-					lineToken[lineIndex] = part.replace("@en", "")
-				else:
-					return subject, predicate, "."
+			# if ('@' in part):
+			# 	if('@en' in part):
+			# 		lineToken[lineIndex] = part.replace("@en", "")
+			# 	else:
+			# 		return subject, predicate, lineToken[-1]
 
-			if (':' in part) and ("^^" not in part):
-				processTag(part) # gets rid of the prefixes and replaces them with the value
+			if (':' in part) and ("^^" not in part) and ("http" not in part):
+				lineToken[lineIndex] = processTag(part) # gets rid of the prefixes and replaces them with the value
 
 			lineIndex += 1
 
-		if (startIndex != -1) and (endIndex != -1):
+		if (startIndex != -1) and (endIndex != -1):	
 			endIndex += 1
 			textObj = " ".join(lineToken[startIndex:endIndex])
 			lineToken = lineToken[:startIndex] + lineToken[endIndex:]
@@ -118,7 +155,8 @@ def parseLine(lineToken, lineNumber, previousEnding, subject, predicate):
 			subject = lineToken[0]
 			predicate = lineToken[1]
 			object,literal = processObject(lineToken[2])
-			data.append((subject,predicate,object,literal))
+			if object:
+				data.append((subject,predicate,object,literal))
 		elif (len(lineToken) == 3) and (previousEnding == ';'):
 			#print lineToken
 			if (subject == ""):
@@ -126,18 +164,22 @@ def parseLine(lineToken, lineNumber, previousEnding, subject, predicate):
 				sys.exit()
 			predicate = lineToken[0]
 			object,literal = processObject(lineToken[1])
-			data.append((subject,predicate,object,literal))
+			if object:
+				data.append((subject,predicate,object,literal))
 		elif (len(lineToken) == 2) and (previousEnding == ','):
 			#print lineToken
 			if (subject == "") or (predicate == ""):
 				print "Error, trying to assign an object without predicate/subject. Line", lineNumber
 				sys.exit()
 			object,literal = processObject(lineToken[0])
-			data.append((subject,predicate,object,literal))
+			if object:
+				data.append((subject,predicate,object,literal))
 		else:
-			print len(lineToken), previousEnding
-			print lineToken
+			# print len(lineToken), previousEnding
+			# print lineToken
 			print "Error, line", lineNumber
+			print "Either too many arguments or too little arguments given in this line."
+			print "Please check if you have ended all your lines correctly."
 			sys.exit()
 
 	return subject,predicate, lineToken[-1]
@@ -151,6 +193,7 @@ def processURLTag(url):
 # predicate handle
 def processTag(tag):
 	tag = tag.split(":")
+	tag[0] += ":"
 	if tag[0] not in prefix:
 		print "Error, you tried to use prefix", tag[0], "when you have not defined it."
 		sys.exit()
@@ -170,12 +213,21 @@ def processObject(objectToken):
 			if(isinstance(float(objectToken), float)):
 				objectToken = "float"
 		except ValueError:
-			if "http://" in objectToken:
+			if ('@' in objectToken):
+				if('@en' in objectToken):
+					objectToken = objectToken.replace("@en", "")
+			else:
+				return None, None
+
+			if ("http://" in objectToken) and ("^^" not in objectToken):
 				objectType = "url"
 			elif "^^" in objectToken:
 				objectToken = objectToken.split("^^")
 				object = objectToken[0]
-				objectType = processTag(objectToken[1])
+				if ("http://" in objectToken[1]):
+					objectType = objectToken[1]
+				else:
+					objectType = processTag(objectToken[1])
 
 	return object, objectType
 

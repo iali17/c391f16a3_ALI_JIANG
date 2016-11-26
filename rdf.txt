@@ -22,9 +22,37 @@ dbr:Edmonton    dbp:areaMetroKm 9426.7299999999995634 ;
         dbp:populationMetro     1159869 ;		
 
 
+@base <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rel: <http://www.perceive.net/schemas/relationship/> .
+
+<#green-goblin>
+    rel:enemyOf <#spiderman> ;
+    a foaf:Person ;    # in the context of the Marvel universe
+    foaf:name "Green Goblin" .
+
+<#spiderman>
+    rel:enemyOf <#green-goblin> ;
+    a foaf:Person ;
+    foaf:name "Spiderman", "Человек-паук"@ru .
 
 
+<http://example.org/#spiderman> <http://www.perceive.net/schemas/relationship/enemyOf> <http://example.org/#green-goblin> ;
+                                <http://xmlns.com/foaf/0.1/name> "Spiderman" .
 
+<http://example.org/#spiderman> <http://www.perceive.net/schemas/relationship/enemyOf> <http://example.org/#green-goblin> .
+<http://example.org/#spiderman> <http://xmlns.com/foaf/0.1/name> "Spiderman" .
+
+PREFIX somePrefix: <http://www.perceive.net/schemas/relationship/> .
+
+<http://example.org/#green-goblin> somePrefix:enemyOf <http://example.org/#spiderman> .
+
+@prefix : <http://bananas.com/> .
+<http://example.org/#green-goblin> :enemyOf <http://example.org/#spiderman> .
+
+<http://伝言.example/?user=أكرم&amp;channel=R%26D> a :subject8 . # a multi-script subject IRI .
 
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix show: <http://example.org/vocab/show/> .
@@ -38,4 +66,4 @@ show:218 show:localName 'Cette Série des Années Soixante-dix'@fr . # literal d
 show:218 show:localName "Cette Série des Années Septante"@fr-be .  # literal with a region subtag
 show:218 show:blurb '''This is a multi-line                        # literal with embedded new lines and quotes
 literal with many quotes (""""")
-and up to two sequential apostrophes ('').''' .	
+and up to two sequential apostrophes ('').''' .
