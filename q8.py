@@ -123,11 +123,11 @@ def parseLine(lineToken, lineNumber, previousEnding, subject, predicate):
 				index3 = part.find("'")
 
 				if (index == -1) :
-					index = 1000000000
+					index = float("inf")
 				if (index2 == -1):
-					index2 = 1000000000
+					index2 = float("inf")
 				if (index3 == -1):
-					index3 = 1000000000
+					index3 = float("inf")
 
 
 				if (index < index2) and (index < index3):
@@ -230,7 +230,7 @@ def processObject(objectToken):
 	except ValueError:
 		try:
 			if(isinstance(float(objectToken), float)):
-				objectToken = "float"
+				objectType = "float"
 		except ValueError:
 			if ("http://" in objectToken) and ("^^" not in objectToken):
 				objectType = "url"
