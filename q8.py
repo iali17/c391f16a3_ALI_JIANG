@@ -21,7 +21,7 @@ def main():
   	print(x)
 
   for p in prefix:
-  	print p, prefix[p]
+  	print(p, prefix[p])
   #pushDB(dbfile)
 
 def pushDB(dbfile):
@@ -55,7 +55,7 @@ def readRDFFile(rdffile):
 					line = line[:index]
 
 
-		#print line
+		#print(line)
 		lineToken = line.split()
 		if len(lineToken) == 0:
 			lineNumber += 1
@@ -71,7 +71,7 @@ def readRDFFile(rdffile):
 			fullLine += lineToken
 
 		# if len(fullLine) > 4:
-		# 	print "Syntax error, you did not end line", lineNumber, "correctly."
+		# 	print("Syntax error, you did not end line", lineNumber, "correctly.")
 		# 	sys.exit()
 
 		subject,predicate,previousEnding = parseLine(fullLine, lineNumber, previousEnding, subject, predicate)
@@ -132,11 +132,11 @@ def parseLine(lineToken, lineNumber, previousEnding, subject, predicate):
 				endIndex = lineIndex
 				combine = False
 			
-			if ('@' in part):
-				if('@en' in part):
-					lineToken[lineIndex] = part.replace("@en", "")
-				else:
-					return subject, predicate, lineToken[-1]
+			# if ('@' in part):
+			# 	if('@en' in part):
+			# 		lineToken[lineIndex] = part.replace("@en", "")
+			# 	else:
+			# 		return subject, predicate, lineToken[-1]
 
 			if (':' in part) and ("^^" not in part) and ("http" not in part):
 				lineToken[lineIndex] = processTag(part) # gets rid of the prefixes and replaces them with the value
@@ -151,38 +151,36 @@ def parseLine(lineToken, lineNumber, previousEnding, subject, predicate):
 				lineToken.insert(startIndex, textObj)
 
 		if (len(lineToken) == 4):
-			#print lineToken
+			#print(lineToken)
 			subject = lineToken[0]
 			predicate = lineToken[1]
-			print "here"
 			object,literal = processObject(lineToken[2])
 			if object:
 				data.append((subject,predicate,object,literal))
 		elif (len(lineToken) == 3) and (previousEnding == ';'):
-			#print lineToken
+			#print(lineToken)
 			if (subject == ""):
-				print "Error, trying to assign a predicate without subject. Line", lineNumber
+				print("Error, trying to assign a predicate without subject. Line", lineNumber)
 				sys.exit()
 			predicate = lineToken[0]
 			object,literal = processObject(lineToken[1])
 			if object:
 				data.append((subject,predicate,object,literal))
 		elif (len(lineToken) == 2) and (previousEnding == ','):
-			#print lineToken
+			#print(lineToken)
 			if (subject == "") or (predicate == ""):
-				print "Error, trying to assign an object without predicate/subject. Line", lineNumber
+				print("Error, trying to assign an object without predicate/subject. Line", lineNumber)
 				sys.exit()
 			object,literal = processObject(lineToken[0])
 			if object:
 				data.append((subject,predicate,object,literal))
 		else:
-			# print len(lineToken), previousEnding
-			# print lineToken
-			print "Error, line", lineNumber
-			print "Either too many arguments or too little arguments given in this line."
-			print "Please check if you have ended all your lines correctly."
+			# print(len(lineToken), previousEnding)
+			# print(lineToken)
+			print("Error, line", lineNumber)
+			print("Either too many arguments or too little arguments given in this line.")
+			print("Please check if you have ended all your lines correctly.")
 			sys.exit()
-	print lineToken
 	return subject,predicate, lineToken[-1]
 
 
@@ -196,9 +194,9 @@ def processTag(tag):
 	tag = tag.split(":")
 	tag[0] += ":"
 	if tag[0] == "_:":
-		return "Blank node"
+		return tag[0] + tag[1]
 	if tag[0] not in prefix:
-		print "Error, you tried to use prefix", tag[0], "when you have not defined it."
+		print("Error, you tried to use prefix", tag[0], "when you have not defined it.")
 		sys.exit()
 	else:
 		return prefix[tag[0]]+tag[1]
