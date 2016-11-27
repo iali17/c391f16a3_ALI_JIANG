@@ -24,9 +24,6 @@ def main():
 	readRDFFile(rdffile)
 
 	# push to database
-	#for x in data:
-	#	print(x)
-	#print(len(data))
 	pushDB(dbfile)
 
 # pushes the data onto the database file provided
@@ -59,10 +56,9 @@ def readRDFFile(rdffile):
 	for line in lines:
 		line = line.strip() # strip any useless spaces in front or behind
 		if ("#" in line):
-			index = -1
+			index = line.find('#')
 			# finds all the '#' rather than just the first
 			while index != -1:
-				index = line.find('#',index+1) # find point where we comment
 				left = line[:index] # get the left side of the comment
 				right = line[index:] # get the right side of the comment
 
@@ -70,6 +66,7 @@ def readRDFFile(rdffile):
 				# this line is a comment
 				if (('<' not in left) or ('>' not in right)) and (index != -1):
 					line = line[:index]
+				index = line.find('#',index+1) # find point where we comment
 
 		# split the line by white space included '\t' and ' '
 		lineToken = line.split()
@@ -241,6 +238,7 @@ def parseLine(lineToken, lineNumber, previousEnding, subject, predicate):
 		else:
 			# Catch all error, usually ends up here if you have not ended a line and so
 			# we assume its a multi-line and if it has too many arguments it ends up here
+			print(lineToken)
 			print("Error, line", lineNumber)
 			print("Either too many arguments or too little arguments given in this line.")
 			print("Please check if you have ended all your lines correctly.")
