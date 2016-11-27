@@ -25,7 +25,7 @@ def readQueryFile(queryfile):
     query = infile.read()
     infile.close()
     # reformat query string
-    query = query.replace("WHERE","\nWHERE\n").replace("SELECT","SELECT\n").replace(", ",",")
+    query = query.replace("WHERE","\nWHERE\n").replace("SELECT","SELECT\n").replace(", ",",").replace("FILTER","FILTER ")
     print(query)
     query = query.strip().split()
     print(query)
