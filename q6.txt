@@ -9,28 +9,24 @@ To create this table we can use:
 	subject text, predicate text, object text, literal text);
 
 
-We start to parse the file by first separating the data into a list. We separate by “ .“ (a period that does 
-not have anything before it. Then start looping through this list which contains a “line”.  We first check if 
-they are prefixes by checking if they start with “@PREFIX”, if they are prefixes we add them to a 
-dictionary where the name(ex. Rdf) is the key and the data is the link contained inside the “<>”. If not a 
-prefix then, parse this line into smaller bits by splitting the list again but this time on “,” and again on 
-“;”. (ex. [“dbr:Edmonton /t rdf:type /t yago:WikicatTownsInAlberta”, “yago:Town108665504”]). Each of
-these lists get split on whitespace (/t, “ “, etc.) into a sub list (ex. [[“dbr:Edmonton”, “rdf:type”,
+We start to parse the file by first separating the data into a list (separating by line). 
+Then start looping through this list which contains a “line”.  We first check if 
+they are prefixes, if they are prefixes we add them to a dictionary where the name(ex. Rdf) is the key 
+and the data is the link contained inside the “<>”. If not a prefix then, check if it ends with an allowed ending
+if it does then just parse the line, if it doesn't, assume its a multi-line and get the next line. Each of
+these lines get split on whitespace (/t, “ “, etc.) into a sub list (ex. [[“dbr:Edmonton”, “rdf:type”,
 “yago:WikicatTownsInAlberta”], [“yago:Town108665504”]]). We then go through each sub-list. If the
-sub-list has a length of 3 (should happen only once per line) we assign the subject, predicate and the
-first. If it has a length of 1(commas) then we keep the subject and predicate and change the object. If it
-has a length of 2 (semicolons) then we keep only the subject and reassign the predicate and change the
-object.
+sub-list has a length of 4(ending included) we assign the subject, predicate and the
+first. If it has a length of 2(commas, ending included) then we keep the subject and predicate 
+and change the object. If it has a length of 2 (semicolons, ending included) then we keep only 
+the subject and reassign the predicate and change the object.
 
 When assigning a new object we have to check if they define a literal. If they define a literal we change 
-that literal to whatever they specify (ex. “http://www.w3.org/2001/XMLSchema#date”). Anything 
-contained inside “<>” are treated as literal “url”. If our literal is @en we assign it as text. If it is
-@(anything else) we skip that object. If our object does not have a prefix and no literal we have to
+that literal to whatever they specify (ex. “http://www.w3.org/2001/XMLSchema#date”). If our literal is @en we assign it as text. 
+If it is @(anything else) we skip that object. If our object does not have a prefix and no literal we have to
 check if it as int or float. If it is one of those we change literal to int or float respectively. When we are
 assigning or changing anything we check if it contains a prefix by checking for ":", if it does we change
-that variable to prefix data + variable.  After these checks we add all these variables together into a
-string which can be added to the database(comma seperated) to be pushed onto the database (once
-per sub-list). Once we are done parsing the whole file we loop over the list that contains things to be
+that variable to prefix data + variable. Once we are done parsing the whole file we loop over the list that contains things to be
 pushed, open the database file, and load them into the database.
 
 Example:

@@ -13,4 +13,9 @@ Question 6:
 
 Question 8:
 	Assume all the line ending parameters like "." , ";" and "," are
-	all alone (eg. "blah ." instead of "blah.")
+		all alone (eg. "blah ." instead of "blah.")
+	Assume that floats and decimals are the same (they are except
+		for precision)
+	All the datatypes declared eg(^^xsd:date) are of that data type
+		they are not converted to text.
+		

@@ -67,3 +67,6 @@ show:218 show:localName "Cette Série des Années Septante"@fr-be .  # literal w
 show:218 show:blurb '''This is a multi-line                        # literal with embedded new lines and quotes
 literal with many quotes (""""")
 and up to two sequential apostrophes ('').''' .
+
+
+<subject2> <predicate2> <object2> .
