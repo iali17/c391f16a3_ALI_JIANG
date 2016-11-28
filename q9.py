@@ -21,12 +21,11 @@ def main():
 	readQueryFile(queryfile)
 
 def readQueryFile(queryfile):
-<<<<<<< HEAD
 	infile = open(queryfile,"r")
 	query = infile.read()
 	infile.close()
 	# reformat query string
-	query = query.replace("WHERE","\nWHERE\n").replace("SELECT","SELECT\n")
+	query = query.replace("WHERE","\nWHERE\n").replace("SELECT","SELECT\n").replace(", ",",").replace("FILTER","FILTER ")
 	print(query)
 	query = query.strip().split()
 	print(query)
@@ -41,55 +40,8 @@ def extractQuery(query):
 	extractWhere = False    
 	
 	index = 0
-=======
-    infile = open(queryfile,"r")
-    query = infile.read()
-    infile.close()
-    # reformat query string
-    query = query.replace("WHERE","\nWHERE\n").replace("SELECT","SELECT\n").replace(", ",",").replace("FILTER","FILTER ")
-    print(query)
-    query = query.strip().split()
-    print(query)
-    extractQuery(query)
-    print(prefix)
-    print(varList)
-    
-    print()
-    print(subjList)
-    print(predList)
-    print(objList)
-    print(filterDict)
-    
-def extractQuery(query):
-    # flag
-    extractPrefix = False
-    extractSelect = False
-    extractWhere = False    
-    
-    filterNo = 1	# filter No.
-    index = 0
-    
-    while (index < len(query) - 1):
-	# judging what to extract
-        # prefix
-        if (query[index].upper() == "PREFIX"):
-            extractPrefix = True
-        # select
-        elif (query[index].upper() == "SELECT"):
-	    if (query[index + 1].upper() == "WHERE"):
-		print('Error, no parameter for SELECT!')
-		sys.exit()
-	    extractSelect = True
-	# where
-	elif (query[index].upper() == "WHERE"):
-	    extractWhere = True
-	    if (query[index + 1] != "{"):
-		print('Error, format error for WHERE')
-		sys.exit()	    
-	    index += 2	# jump over "{"
->>>>>>> bca1730a2f6953b1bc837838f7837ec43b9d87fd
 	
-	while (index < len(query)):
+	while (index < len(query) - 1):
 		# judging what to extract
 		# prefix
 		if (query[index].upper() == "PREFIX"):
@@ -103,7 +55,10 @@ def extractQuery(query):
 		# where
 		elif (query[index].upper() == "WHERE"):
 			extractWhere = True
-			index += 1	# jump over "{"
+			if (query[index + 1] != "{"):
+				print('Error, format error for WHERE')
+				sys.exit()	    
+			index += 2	# jump over "{"
 	
 		# extraction loop
 		if (extractPrefix):
@@ -126,40 +81,32 @@ def extractQuery(query):
 				var = query[index].replace("?","")
 				varList.append(var)
 		elif (extractWhere):
-			# TODO
-			index += 1
-		
-<<<<<<< HEAD
+			if (query[index] == "."):
+				index += 1
+			# end of where
+
 			if (query[index] == "}"):
 				extractWhere = False
-=======
-	elif (extractWhere):
-	    if (query[index] == "."):
-		index += 1
-	    # end of where
-	    if (query[index] == "}"):
-		extractWhere = False
-	    # filter case
-	    elif (query[index].upper() == "FILTER"):
-		filterStr = "filter_"+str(filterNo)
-		filterNo += 1
-		filterDict[filterStr] = query[index + 1]
-		subjList.append(filterStr)  # adding filterStr to indicate execution order
-		predList.append(filterStr)
-		objList.append(filterStr)
-		index += 2
-	    # subj, pred, obj
-	    else:
-		subj = query[index]
-		pred = query[index + 1]
-		obj = query[index + 2]
-		
-		subjList.append(subj)
-		predList.append(pred)
-		objList.append(obj)
-		index += 3
->>>>>>> bca1730a2f6953b1bc837838f7837ec43b9d87fd
-	
+	    	# filter case
+			elif (query[index].upper() == "FILTER"):
+				filterStr = "filter_"+str(filterNo)
+				filterNo += 1
+				filterDict[filterStr] = query[index + 1]
+				subjList.append(filterStr)  # adding filterStr to indicate execution order
+				predList.append(filterStr)
+				objList.append(filterStr)
+				index += 2
+				# subj, pred, obj
+			else:
+				subj = query[index]
+				pred = query[index + 1]
+				obj = query[index + 2]
+				
+				subjList.append(subj)
+				predList.append(pred)
+				objList.append(obj)
+				index += 3
+
 		else:
 			index += 1
 		
