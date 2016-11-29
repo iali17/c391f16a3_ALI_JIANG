@@ -11,6 +11,8 @@ predList = []	# predicate
 objList	= []	# object
 filterDict = {}	# filter
 
+numerics = [">=","<=","!=","=",">","<"]
+
 def main():
 	# argv check and acquire files
 	if len(sys.argv) != 3:
@@ -25,7 +27,11 @@ def readQueryFile(queryfile):
 	query = infile.read()
 	infile.close()
 	# reformat query string
-	query = query.replace("WHERE","\nWHERE\n").replace("SELECT","SELECT\n").replace(", ",",").replace("FILTER","FILTER ").replace("<"," <")
+	query = query.replace("WHERE","\nWHERE\n").replace("SELECT","SELECT\n").replace(", ",",").replace("FILTER","FILTER ").replace("<http","	<http")
+	for numeric in numerics:
+		query = query.replace(" "+numeric,numeric)
+		query = query.replace(numeric+" ",numeric)
+	
 	print(query)
 	query = query.strip().split()
 	if ("}" not in query):
@@ -103,7 +109,7 @@ def extractQuery(query):
 				extractWhere = False
 			# filter case
 			elif (query[index].upper() == "FILTER"):
-				filterStr = "@filter_"+str(filterNo)
+				filterStr = "@"+str(filterNo)
 				filterNo += 1
 				filterDict[filterStr] = processFilter(query[index + 1])
 				subjList.append(filterStr)  # adding filterStr to indicate execution order
@@ -154,6 +160,7 @@ def processObject(object):
 # (regex(?team,"Barcelona"))
 # ['team', '"Barcelona"']
 def processFilter(filter):
+	# REGEX
 	if ("REGEX" in filter.upper()):
 		regexList = []
 		startIndex = filter.upper().index("REGEX") + 6
@@ -162,6 +169,32 @@ def processFilter(filter):
 		for object in tokenList:
 			regexList.append(processObject(object))
 		return regexList
+	# numeric
+	else:
+		filter = filter.replace("(","").replace(")","")
+		if "<=" in filter:
+			operator = "<="
+			adder = 2
+		elif ">=" in filter:
+			operator = ">="
+			adder = 2
+		elif "<" in filter:
+			operator = "<"
+			adder = 1
+		elif ">" in filter:
+			operator = ">"
+			adder = 1
+		elif "!=" in filter:
+			operator = "!="
+			adder = 2
+		elif "=" in filter:
+			operator = "="
+			adder = 1
+		i = filter.index(operator)
+		comparer = processObject(filter[:i])
+		compared = processObject(filter[i+adder:])
+		
+		return [comparer,compared,operator]
 	
     
 if __name__ == '__main__':

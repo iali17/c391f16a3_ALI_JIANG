@@ -1,7 +1,7 @@
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX schema: <http://schema.org/>
-PREFIX dbr: <http://dbpedia.org/resource/>
-PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX rdf:<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX schema:<http://schema.org/>
+PREFIX dbr:<http://dbpedia.org/resource/>
+PREFIX dbo:<http://dbpedia.org/ontology/>
 
 SELECT ?v1    ?v2 	?v3  ?v4
 
@@ -17,4 +17,5 @@ SELECT ?v1    ?v2 	?v3  ?v4
 	
   	?city dbo:country dbr:Canada .
 	FILTER (regex(?team, "Barcelona")) . 
+	FILTER (?price <= 30.5) .
 } 
