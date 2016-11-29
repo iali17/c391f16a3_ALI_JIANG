@@ -146,13 +146,24 @@ def processURLTag(url):
 def processObject(object):
 	# var
 	if ("?" in object):
-		return object.replace("?","")
+		var = object.replace("?","")
+		if var in varList:
+			return var
+		elif "*" in varList:
+			return var
+		else:
+			print('Error, undefined variable '+var+"!")
+			sys.exit()	
 	# predicate
 	elif (":" in object):
 		i = object.index(":")
 		tag = object[:i]
 		obj = object[i+1:]
-		return prefix[tag]+obj
+		if tag in prefix.keys():
+			return prefix[tag]+obj
+		else:
+			print('Error, prefix not found!')
+			sys.exit()	    
     # literals
 	else:
 		return object
