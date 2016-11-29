@@ -103,9 +103,9 @@ def extractQuery(query):
 		extractWhere = False
 	    # filter case
 	    elif (query[index].upper() == "FILTER"):
-		filterStr = "filter_"+str(filterNo)
+		filterStr = "@filter_"+str(filterNo)
 		filterNo += 1
-		filterDict[filterStr] = query[index + 1]
+		filterDict[filterStr] = processFilter(query[index + 1])
 		subjList.append(filterStr)  # adding filterStr to indicate execution order
 		predList.append(filterStr)
 		objList.append(filterStr)
@@ -116,6 +116,10 @@ def extractQuery(query):
 		pred = query[index + 1]
 		obj = query[index + 2]
 		
+		subj = processObject(subj)
+		pred = processObject(pred)
+		obj = processObject(obj)
+		
 		subjList.append(subj)
 		predList.append(pred)
 		objList.append(obj)
@@ -124,11 +128,41 @@ def extractQuery(query):
 	else:
 	    index += 1
 	    
-		
-    
+# helper function
+# process url tag
 def processURLTag(url):
     # remove "<>" token from url
     return url[url.index("<") + 1 : url.index(">")]
+
+# process where scenario
+def processObject(object):
+    # var
+    if ("?" in object):
+	return object.replace("?","")
+    # predicate
+    elif (":" in object):
+	i = object.index(":")
+	tag = object[:i]
+	obj = object[i+1:]
+	return prefix[tag]+obj
+    # literals
+    else:
+	return object
+
+# process REGEX
+# eg: 
+# (regex(?team,"Barcelona"))
+# ['team', '"Barcelona"']
+def processFilter(filter):
+    if ("REGEX" in filter.upper()):
+	regexList = []
+	startIndex = filter.upper().index("REGEX") + 6
+	endIndex = filter.index(')')
+	tokenList = filter[startIndex:endIndex].split(",")
+	for object in tokenList:
+	    regexList.append(processObject(object))
+	return regexList
+	
     
 if __name__ == '__main__':
     main()
