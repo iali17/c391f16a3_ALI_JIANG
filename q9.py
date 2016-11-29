@@ -25,9 +25,13 @@ def readQueryFile(queryfile):
     query = infile.read()
     infile.close()
     # reformat query string
-    query = query.replace("WHERE","\nWHERE\n").replace("SELECT","SELECT\n").replace(", ",",").replace("FILTER","FILTER ")
+    query = query.replace("WHERE","\nWHERE\n").replace("SELECT","SELECT\n").replace(", ",",").replace("FILTER","FILTER ").replace("<"," <")
     print(query)
     query = query.strip().split()
+    if ("}" not in query):
+	print('Error, } missing')
+	sys.exit()
+	
     print(query)
     extractQuery(query)
     print(prefix)
@@ -63,7 +67,7 @@ def extractQuery(query):
 	elif (query[index].upper() == "WHERE"):
 	    extractWhere = True
 	    if (query[index + 1] != "{"):
-		print('Error, format error for WHERE')
+		print('Error, { missing')
 		sys.exit()	    
 	    index += 2	# jump over "{"
 	
@@ -85,6 +89,9 @@ def extractQuery(query):
 		extractSelect = False
 		index += 1
 	    else:
+		if ("?" not in query[index]):
+		    print('Error, variable syntax error')
+		    sys.exit()	    		    
 		var = query[index].replace("?","")
 		varList.append(var)
 		
