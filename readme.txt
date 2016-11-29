@@ -18,4 +18,20 @@ Question 8:
 		for precision)
 	All the datatypes declared eg(^^xsd:date) are of that data type
 		they are not converted to text.
-		
+
+Question 9:
+
+Compilation Instructions:
+	Because we used python we do not need to compile the code. 
+	But we are using python3.
+	To run q8 please use:
+		python3 q8.py <database file> <RDF input file>
+	To run q9 please use:
+		python3 q9.py <database file> <SPARQL input file>
+
+Libraries used:
+	sys
+	sqlite3
+
+Collaborations:
+	Aaron Liu and Taylor Arnett

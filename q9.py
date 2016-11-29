@@ -14,7 +14,7 @@ filterDict = {}	# filter
 def main():
 	# argv check and acquire files
 	if len(sys.argv) != 3:
-		print("Usage: python3 q8.py <database file> <SPARQL input file>")
+		print("Usage: python3 q9.py <database file> <SPARQL input file>")
 		sys.exit()
 	dbfile = sys.argv[1]
 	queryfile = sys.argv[2]
