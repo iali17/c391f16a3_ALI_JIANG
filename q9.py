@@ -10,6 +10,7 @@ subjList = []	# subject
 predList = []	# predicate
 objList	= []	# object
 filterDict = {}	# filter
+filterList = []
 
 numerics = [">=","<=","!=","=",">","<"]
 
@@ -47,7 +48,7 @@ def readQueryFile(queryfile):
 	print(subjList)
 	print(predList)
 	print(objList)
-	print(filterDict)
+	print(filterList)
     
 def extractQuery(query):
 	# flag
@@ -55,7 +56,7 @@ def extractQuery(query):
 	extractSelect = False
 	extractWhere = False    
 	
-	filterNo = 1	# filter No.
+	#filterNo = 1	# filter No.
 	index = 0
     
 	while (index < len(query) - 1):
@@ -109,12 +110,13 @@ def extractQuery(query):
 				extractWhere = False
 			# filter case
 			elif (query[index].upper() == "FILTER"):
-				filterStr = "@"+str(filterNo)
-				filterNo += 1
-				filterDict[filterStr] = processFilter(query[index + 1])
-				subjList.append(filterStr)  # adding filterStr to indicate execution order
-				predList.append(filterStr)
-				objList.append(filterStr)
+				#filterStr = "@"+str(filterNo)
+				#filterNo += 1
+				#filterDict[filterStr] = processFilter(query[index + 1])
+				#subjList.append(filterStr)  # adding filterStr to indicate execution order
+				#predList.append(filterStr)
+				#objList.append(filterStr)
+				filterList.append(processFilter(query[index + 1]))
 				index += 2
 			# subj, pred, obj
 			else:
@@ -159,6 +161,8 @@ def processObject(object):
 # eg: 
 # (regex(?team,"Barcelona"))
 # ['team', '"Barcelona"']
+# (?price<=30.5) .
+# ['price', '30.5', '<=']
 def processFilter(filter):
 	# REGEX
 	if ("REGEX" in filter.upper()):
