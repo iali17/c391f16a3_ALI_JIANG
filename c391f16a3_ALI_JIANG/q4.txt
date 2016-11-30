@@ -1,0 +1,15 @@
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX dbc: <http://dbpedia.org/resource/Category:>
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX schema: <http://schema.org/>
+
+SELECT ?team (COUNT(?team) as ?times)
+WHERE {
+  ?match dct:subject dbc:FIFA_World_Cup_finals .
+  ?match dbo:team ?team .
+  ?team rdf:type schema:SportsTeam .
+}
+GROUP BY ?team
+HAVING(COUNT(?team) > 3)
+
