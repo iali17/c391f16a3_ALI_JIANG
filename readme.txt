@@ -19,3 +19,7 @@ Question 8:
 	All the datatypes declared eg(^^xsd:date) are of that data type
 		they are not converted to text.
 		
+Question 9:
+	Assume all the line ending parameters like "." , ";" and "," are
+		all alone (eg. "blah ." instead of "blah.")
+	Assume inside prefix a space is between ":" and Url. (eg. PREFIX: <URL> instead of PREFIX:<URL>)	
