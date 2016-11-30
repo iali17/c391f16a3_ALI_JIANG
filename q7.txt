@@ -1,1 +1,13 @@
---q7
+Indices depends on how large the database is and how much it gets updated.
+They will make parsing a large database faster and makes adding new 
+entries slower because we have to update indices. We chose not to  
+add indices for this assignment because the database is 
+fairly small. Therefore, the indices will not provide a noticable
+increase in efficency and speed of query results.
+
+
+If however we assume that the database is as large as dbpedia,
+we should add an index on (subject,predicate) because this would
+allow us to parse through the objects faster. Specifically subject
+first because we believe that the subject related queries would be 
+of higher related frequency.

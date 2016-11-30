@@ -20,6 +20,9 @@ Question 8:
 		they are not converted to text.
 
 Question 9:
+	Assume all the line ending parameters like "." , ";" and "," are
+		all alone (eg. "blah ." instead of "blah.")
+	Assume inside prefix a space is between ":" and Url. (eg. PREFIX: <URL> instead of PREFIX:<URL>)	
 
 Compilation Instructions:
 	Because we used python we do not need to compile the code. 
