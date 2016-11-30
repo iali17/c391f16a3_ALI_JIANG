@@ -10,12 +10,15 @@ subjList = []	# subject
 predList = []	# predicate
 objList	= []	# object
 filterDict = {}	# filter
-filterList = []
+filterList = [] # filter list
 
+# list that has the variables allowed
 numerics = [">=","<=","!=","=",">","<"]
 
+# list of the queries that will be made to be sent to database
 subQueries = []
 
+# reads file , executes query and ends
 def main():
 	# argv check and acquire files
 	if len(sys.argv) != 3:
@@ -28,6 +31,7 @@ def main():
 		getVariables()
 	executeQuery(dbfile)
     
+# reads the query file and formates the query so that we can parse easier
 def readQueryFile(queryfile):
 	infile = open(queryfile,"r")
 	query = infile.read()
@@ -44,7 +48,8 @@ def readQueryFile(queryfile):
 		sys.exit()
 	
 	extractQuery(query)
-    
+
+# this extracts the query 
 def extractQuery(query):
 	# flag
 	extractPrefix = False
@@ -81,7 +86,7 @@ def extractQuery(query):
 			
 			index += 3
 			extractPrefix = False
-			
+        # extracts the select clause	
 		elif (extractSelect):
 			index += 1
 			if (query[index].upper() == "WHERE"):
@@ -96,7 +101,7 @@ def extractQuery(query):
 					sys.exit()	    		    
 				var = query[index]#.replace("?","")
 				varList.append(var)
-			
+		# extracts the where clause
 		elif (extractWhere):
 			if (query[index] == "."):
 				index += 1
@@ -105,12 +110,6 @@ def extractQuery(query):
 				extractWhere = False
 			# filter case
 			elif (query[index].upper() == "FILTER"):
-				#filterStr = "@"+str(filterNo)
-				#filterNo += 1
-				#filterDict[filterStr] = processFilter(query[index + 1])
-				#subjList.append(filterStr)  # adding filterStr to indicate execution order
-				#predList.append(filterStr)
-				#objList.append(filterStr)
 				filterList.append(processFilter(query[index + 1]))
 				index += 2
 			# subj, pred, obj
@@ -119,12 +118,15 @@ def extractQuery(query):
 				pred = query[index + 1]
 				obj = query[index + 2]
 				
+                # gets the subject/predicate and the object
 				subj = processObject(subj)
 				pred = processObject(pred)
 				obj = processObject(obj)
 				
+                # form the sub query based on the things
 				formSubQuery(subj,pred,obj)
 
+                # append to the global list
 				subjList.append(subj)
 				predList.append(pred)
 				objList.append(obj)
@@ -209,9 +211,9 @@ def processFilter(filter):
 		
 		return [comparer,compared,operator]
 
-
+# forms the sub query and adds to the list of sub queries
 def formSubQuery(subject,predicate,object):
-
+    # create the sub query
 	subQuery =""
 	subQuery += formSelect(subject, predicate,object)
 
@@ -240,14 +242,17 @@ def formSubQuery(subject,predicate,object):
 	elif ((isVar(subject)) and (isVar(predicate)) and (isVar(object))):
 		subQuery += " "
 
+    # add to the list
 	subQueries.append(subQuery)
 
+# checks if the object is a variable
 def isVar(object):
 	if (object[0] == "?"):
 		return True
 	else:
 		return False
 
+# forms the select based on what they have passed us and returns the query
 def formSelect(subject,predicate,object):
 	subList = []
 	if subject[0] == "?":
@@ -259,30 +264,20 @@ def formSelect(subject,predicate,object):
 
 
 	subQuery = "SELECT DISTINCT "
-
 	subQuery += ','.join(subList) + " "
 	subQuery += "FROM data "
 
-
-	# i = 0
-	# while i < len(subjList) - 1:
-	# 	subQueries.append(subQuery)
-	# 	i += 1
 	return subQuery
 
+# forms the filter query
+# its a wrapper on top of the list returned
 def formFilterQuery(insideNest):
-	#filterList = [['?title', ' "web"'],['?price', ' 3', '>']]
-	#select part
+    # initialization of the final query
 	finalQuery = "SELECT DISTINCT * FROM "
-	# else:
-	# finalQuery = "SELECT DISTINCT "
-	# for var in varList:
-	# 	finalQuery += var+" "
-	# finalQuery += "FROM "
-
 	finalQuery += " ("+insideNest+") "
 	finalQuery += ") WHERE "
 
+    # gets the query based on what filters they have specified
 	isDone = False
 	index = 0
 	for filter in filterList:
@@ -296,14 +291,19 @@ def formFilterQuery(insideNest):
 			print("Error, you entered an invalid variable as a filter.")
 			sys.exit()
 
+        # checks if you're the second last element
 		if len(filterList) - 1 == index:
 			isDone = True
 
+        # if the len of filter is 2 then you have a text query,
+        # so search the query with like
 		if len(filter) == 2:
 			if isDone:
 				finalQuery += var + " like '%" + filter[1][1:-1] + "%' "
 			else:
 				finalQuery += var + " like '%" + filter[1][1:-1] + "%' and "
+        # if the length of the filter is 3 then you have a numeric query
+        # so check with the variables given
 		elif len(filter) == 3:
 			if isDone:
 				finalQuery += var + " " + filter[2] + " " + filter[1] + ""
@@ -314,33 +314,46 @@ def formFilterQuery(insideNest):
 			sys.exit()
 
 		index += 1
+    # add semi colon to the end
 	finalQuery+= ";"
 
 	return finalQuery
 
+# executes the query
 def executeQuery(dbfile):
+    # get a connection and cursor the the database
 	conn = sqlite3.connect(dbfile)
 	c = conn.cursor()
+
+    # the query
 	finalQuery = ""
 	insideNest = ""
 
+    # add all the sub-queries
 	i = 0
 	while i < len(subQueries) - 1:
 		insideNest += "( " + subQueries[i] + ") join " 
 		i+=1
 	insideNest += "( "+subQueries[-1] + " )"
 
+    # this is the overall query
 	finalQuery = "SELECT DISTINCT * FROM ("
 
+    # if no filters just add the semicolon and you're
+    # done with the query
 	if len(filterList) == 0:
 		finalQuery += insideNest
 		finalQuery += ");"
 	else:
+        # else get the filters
 		finalQuery += formFilterQuery(insideNest)
 
+    # execute the query
 	c.execute(finalQuery)
+    # store the results to a list
 	result = c.fetchall()
 
+    # loop through the list and print 
 	for res in result:
 		for value in getUnique(res):
 			print("|%-50s" % value , end = '')
@@ -348,6 +361,7 @@ def executeQuery(dbfile):
 
 	conn.close()
 
+# gets unique values in the list
 def getUnique(result):
 	output = list()
 	for res in result:
@@ -355,6 +369,8 @@ def getUnique(result):
 			output.append(res)
 	return output
 
+# gets all the variables from varList and 
+# sees which list they are
 def getVariables():
 	global varList
 	varList = []
@@ -371,5 +387,7 @@ def getVariables():
 			varList.append("object")
 
 	varList = list(set(varList))
+
+
 if __name__ == '__main__':
 	main()
