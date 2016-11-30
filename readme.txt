@@ -38,3 +38,4 @@ Libraries used:
 
 Collaborations:
 	Aaron Liu and Taylor Arnett
+	Kynan Ly
