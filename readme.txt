@@ -1,4 +1,4 @@
-Imran Ali, Chen Jiang
+Name: Imran Ali, Chen Jiang
 
 Question 2:
 	This gets the airports and checks if it has a location first
@@ -12,6 +12,9 @@ Question 6:
 	Please use tab-size 8 to be able to see the table as intended.
 
 Question 8:
+	To start Question 8:
+		python3 q8.py <database file> <RDF input file>
+		
 	Assume all the line ending parameters like "." , ";" and "," are
 		all alone (eg. "blah ." instead of "blah.")
 	Assume that floats and decimals are the same (they are except
@@ -20,8 +23,9 @@ Question 8:
 		they are not converted to text.
 
 Question 9:
-	Assume all the line ending parameters like "." , ";" and "," are
-		all alone (eg. "blah ." instead of "blah.")
+	To start Question 8:
+                python3 q9.py <database file> <SPARQL input file>
+		
 	Assume inside prefix a space is between ":" and Url. (eg. PREFIX: <URL> instead of PREFIX:<URL>)	
 
 Compilation Instructions:
